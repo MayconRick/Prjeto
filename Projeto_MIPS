@@ -1,0 +1,112 @@
+
+.data 
+ 	linha: .asciiz "\n"
+ 	ppt: .asciiz "1-PEDRA  2- PAPEL  3-TESOURA"
+ 	jogador1: .asciiz "Primeiro Jogador: "
+ 	jogador2: .asciiz "Segundo Jogador: "
+ 	empate: .asciiz "Rodada empatada \n"
+ 	v1: .asciiz "JOGADOR 1 VENCEDOR \n ACABOUUUUUUUU, O MUNDO É SEU TORCEDOR TRICOLOR!! SÃO PAULO, SÃO PAULO, SÃO PAULO! 3 VEZES CAMPEÃO DO MUNDO, BATA NO PEITO, FAÇA A FESTA TORCEDOR TRICOLOR"
+ 	v2: .asciiz "JOGADOR 2 VENCEDOR \n ACABOUUUUUUUU, O MUNDO É SEU TORCEDOR TRICOLOR!! SÃO PAULO, SÃO PAULO, SÃO PAULO! 3 VEZES CAMPEÃO DO MUNDO, BATA NO PEITO, FAÇA A FESTA TORCEDOR TRICOLOR"
+.text	
+.globl main ifPedra ifPapel ifTesoura ifEmpate winJ1 winJ2 fin1 fin2 fim
+	
+main:
+
+	#------------------------------Pegando valores-----------------------------------------------
+	li $v0, 4		#Print enunciado
+	la $a0, ppt
+	syscall 
+	
+	li $v0, 4		#\n
+	la $a0, linha
+	syscall 
+	
+	li $v0, 4		#Print jogador1
+	la $a0, jogador1
+	syscall 
+	
+	li $v0, 5  		#chamar teclado
+	syscall
+	la $s0,($v0) 		#coloca o valor em s0
+	
+	li $v0, 4		#\n
+	la $a0, linha
+	syscall
+
+	li $v0, 4		#Print jogador2
+	la $a0, jogador2
+	syscall 
+	
+	li $v0, 5  		#chamar teclado
+	syscall
+	la $s4,($v0) 		#coloca o valor em s4
+	
+	la $s1,1($t8) 		#coloca o valor em s0
+	la $s2,2($t8) 		#coloca o valor em s0
+	la $s3,3($t8) 		#coloca o valor em s0
+	
+	#s0 = jogador 1
+	#s4 = jogador 2
+	#s1 = 1
+	#s2 = 2
+	#s3 = 3
+	
+	#-------------------------------Definindo vencedor---------------------------------------
+	
+	
+	beq $s0, $s4, ifEmpate 		#if jogador 1 = jogador 2  -> empate
+	beq $s0, $s1, ifPedra  		#if jogador 1 = pedra -> pedra
+	beq $s0, $s2, ifPapel		#if jogador 1 = papel -> papel
+	beq $s0, $s2, ifTesoura		#if jogador 1 = tesoura -> tesoura
+	
+	ifEmpate:
+		li $v0, 4		#print empate ->main
+		la $a0, empate
+		syscall
+		j main
+		
+	ifPedra:
+		beq $s4, $s2, winJ2  	#pedra x papel
+		beq $s4, $s3, winJ1	#pedra x tesoura
+	
+	ifPapel:
+		beq $s4, $s1, winJ1  	#papel x pedra
+		beq $s4, $s3, winJ2	#papel x tesoura
+	
+	ifTesoura:
+		beq $s4, $s1, winJ2  	#tesosura x pedra
+		beq $s4, $s2, winJ1	#tesoura x papel
+		
+	#-------------------------------Somando vitorias---------------------------------------	
+		
+	#s6 = contador jogador 1
+	#s7 = contador jogador 2
+	
+	winJ1:
+		add $s6, $s6, 1 		# s6 += 1
+		beq $s6, 3, fin1	#if contador = 3, vencedor J1
+		bne $s6, 3, main
+		
+	winJ2:
+		add $s7, $s7, 1		# s6 += 1
+		beq $s7, 3, fin2	#if contador = 3, vencedor J2
+		bne $s7, 3, main
+	fin1:
+		li $v0, 4		#Print final
+		la $a0, v1
+		syscall 
+		j fim
+		
+	fin2:
+		li $v0, 4		#Print final
+		la $a0, v2
+		syscall 
+		
+		
+	fim:
+		
+	
+	
+	
+	
+	
